@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support Agent</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+        /* Dynamic Cosmic Dark Mode Palette */
+        :root {
+            --bg-grad-1: #0f172a;
+            --bg-grad-2: #1e1b4b;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary-accent: #6366f1;
+            --primary-hover: #4f46e5;
+            --bot-bubble: rgba(99, 102, 241, 0.15);
+            --user-bubble: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-sub: #cbd5e1;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2));
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Ambient Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+        }
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: #4f46e5;
+            top: -100px;
+            left: -100px;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: #ec4899;
+            bottom: -50px;
+            right: -50px;
+            animation: float 12s infinite ease-in-out alternate-reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(50px) scale(1.05); }
+        }
+
+        /* Glassmorphic Container */
+        .chat-container {
+            width: 450px;
+            height: 80vh;
+            max-height: 800px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0,0,0,0.1);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .header-text h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header-text p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .chat-view {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-accent) transparent;
+        }
+
+        .chat-view::-webkit-scrollbar { width: 6px; }
+        .chat-view::-webkit-scrollbar-thumb { background: var(--primary-accent); border-radius: 10px; }
+
+        /* Bubbles */
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            word-wrap: break-word;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .bot-message {
+            background: var(--bot-bubble);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background: var(--user-bubble);
+            border: 1px solid var(--glass-border);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .source-tag {
+            display: block;
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 6px;
+            font-style: italic;
+        }
+
+        .input-area {
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.15);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            padding: 12px 15px;
+            border-radius: 25px;
+            color: white;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-area input:focus {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+        }
+
+        .input-area button {
+            background: linear-gradient(135deg, var(--primary-accent), var(--primary-hover));
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .input-area button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .input-area button svg {
+            fill: white;
+            width: 18px;
+            height: 18px;
+            transform: translateX(1px);
+        }
+
+        /* Typing indicator */
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            padding: 5px 10px;
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-sub);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="avatar">AI</div>
+            <div class="header-text">
+                <h2>RAG Support Assistant</h2>
+                <p><span class="status-dot"></span> Online and ready to help</p>
+            </div>
+        </div>
+
+        <div class="chat-view" id="chatList">
+            <div class="message bot-message">
+                Hello! 👋 I'm your AI-powered customer support assistant. You can ask me questions about our documents and policies.
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Type your question..." autocomplete="off">
+            <button onclick="sendMessage()" id="sendBtn">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatList = document.getElementById('chatList');
+        const userInput = document.getElementById('userInput');
+        
+        // Listen for Enter key
+        userInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") sendMessage();
+        });
+
+        async function sendMessage() {
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            // Remove text from input
+            userInput.value = '';
+
+            // Render User Message
+            addMessage(query, 'user-message');
+
+            // Render Typing Indicator
+            const typingId = 'typing-' + Date.now();
+            addTypingIndicator(typingId);
+
+            try {
+                // Determine base URL dynamically (works locally or deployed)
+                const baseUrl = window.location.origin;
+                
+                const response = await fetch(`${baseUrl}/query`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const data = await response.json();
+                
+                // Remove typing indicator
+                document.getElementById(typingId).remove();
+
+                // Build answer string incorporating source logic
+                let botReply = data.answer;
+                if (data.source && data.source !== "") {
+                     botReply += `\n<span class='source-tag'>Knowledge Base ➔ ${data.source}</span>`;
+                }
+                
+                if (data.needs_hitl) {
+                     botReply += `\n<span class='source-tag'>Escalated to Agent ➔ Ticket: ${data.hitl_ticket_id}</span>`;
+                }
+
+                addMessage(botReply, 'bot-message', true);
+            } catch (err) {
+                document.getElementById(typingId).remove();
+                addMessage("Warning: Server connection failed. Please ensure the backend is running.", 'bot-message');
+            }
+        }
+
+        function addMessage(text, className, isHTML = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${className}`;
+            if (isHTML) {
+                msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+            } else {
+                msgDiv.innerText = text;
+            }
+            chatList.appendChild(msgDiv);
+            chatList.scrollTop = chatList.scrollHeight;
+        }
+
+        function addTypingIndicator(id) {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.id = id;
+            typingDiv.innerHTML = `
+                <div class="typing">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            `;
+            chatList.appendChild(typingDiv);
+            chatList.scrollTop = chatList.scrollHeight;
+        }
+    </script>
+</body>
+</html>
